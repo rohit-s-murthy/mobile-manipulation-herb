@@ -88,7 +88,25 @@ class SimpleEnvironment(object):
         # Actions is a dictionary that maps orientation of the robot to
         #  an action set
         self.actions = dict()
-              
+
+        dur_res = 11
+        dur_max = 1.0
+        omega_res = 11
+        omega_max = 1.0
+        self.controls = []
+
+        for i in range(dur_res):
+          for j in range(omega_res):
+              for k in range(omega_res):
+                dur = dur_max * i / (dur_res - 1)
+                omega_l = omega_max * j / (omega_max - 1)
+                omega_r = omega_max * k / (omega_max - 1)
+
+                self.controls.append(Control( omega_l, omega_r, d))
+                self.controls.append(Control(-omega_l, omega_r, d))
+                self.controls.append(Control( omega_l, -omega_r, d))
+                self.controls.append(Control(-omega_l, -omega_r, d))
+
         wc = [0., 0., 0.]
         grid_coordinate = self.discrete_env.ConfigurationToGridCoord(wc)
 
@@ -98,10 +116,9 @@ class SimpleEnvironment(object):
             grid_coordinate[2] = idx
             start_config = self.discrete_env.GridCoordToConfiguration(grid_coordinate)
 
-            # TODO: Here you will construct a set of actions
-            #  to be used during the planning process
-            #
-         
+            for c in self.controls:
+                ftpt = GenerateFootprintFromControl(start_config, c)
+                self.actions[idx].append(Action(c, ftpt))
             
 
     def GetSuccessors(self, node_id):
