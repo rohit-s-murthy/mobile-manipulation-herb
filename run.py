@@ -65,11 +65,12 @@ if __name__ == "__main__":
         robot.SetActiveManipulator('left_wam')
 
     robot.controller = openravepy.RaveCreateController(robot.GetEnv(), 'IdealController')
-    embed()
+    # embed()
     robot.ikmodel = openravepy.databases.inversekinematics.InverseKinematicsModel(robot, iktype=openravepy.IkParameterization.Type.Transform6D)
     if not robot.ikmodel.load():
         robot.ikmodel.autogenerate()
-    embed()
+
+    print(robot.ikmodel)
     # Create environments for planning the arm and base
     resolution = [args.hres, args.hres, args.tres]
     herb = HerbRobot(env, robot, args.manip)
