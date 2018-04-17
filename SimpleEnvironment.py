@@ -99,13 +99,13 @@ class SimpleEnvironment(object):
           for j in range(omega_res):
               for k in range(omega_res):
                 dur = dur_max * i / (dur_res - 1)
-                omega_l = omega_max * j / (omega_max - 1)
-                omega_r = omega_max * k / (omega_max - 1)
+                omega_l = omega_max * j / (omega_res - 1)
+                omega_r = omega_max * k / (omega_res - 1)
 
-                self.controls.append(Control( omega_l, omega_r, d))
-                self.controls.append(Control(-omega_l, omega_r, d))
-                self.controls.append(Control( omega_l, -omega_r, d))
-                self.controls.append(Control(-omega_l, -omega_r, d))
+                self.controls.append(Control( omega_l,  omega_r, dur))
+                self.controls.append(Control(-omega_l,  omega_r, dur))
+                self.controls.append(Control( omega_l, -omega_r, dur))
+                self.controls.append(Control(-omega_l, -omega_r, dur))
 
         wc = [0., 0., 0.]
         grid_coordinate = self.discrete_env.ConfigurationToGridCoord(wc)
@@ -117,7 +117,7 @@ class SimpleEnvironment(object):
             start_config = self.discrete_env.GridCoordToConfiguration(grid_coordinate)
 
             for c in self.controls:
-                ftpt = GenerateFootprintFromControl(start_config, c)
+                ftpt = self.GenerateFootprintFromControl(start_config, c)
                 self.actions[idx].append(Action(c, ftpt))
             
 
