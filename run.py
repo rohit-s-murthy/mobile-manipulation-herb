@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse, numpy, openravepy, time
+from IPython import embed
 
 from HerbRobot import HerbRobot
 from HerbEnvironment import HerbEnvironment
@@ -64,10 +65,11 @@ if __name__ == "__main__":
         robot.SetActiveManipulator('left_wam')
 
     robot.controller = openravepy.RaveCreateController(robot.GetEnv(), 'IdealController')
+    embed()
     robot.ikmodel = openravepy.databases.inversekinematics.InverseKinematicsModel(robot, iktype=openravepy.IkParameterization.Type.Transform6D)
     if not robot.ikmodel.load():
         robot.ikmodel.autogenerate()
-
+    embed()
     # Create environments for planning the arm and base
     resolution = [args.hres, args.hres, args.tres]
     herb = HerbRobot(env, robot, args.manip)
@@ -110,8 +112,7 @@ if __name__ == "__main__":
     planner = GraspPlanner(herb.robot, base_planner, arm_planner)
     planner.PlanToGrasp(bottle)
 
-    import IPython
-    IPython.embed()
+    embed()
 
 
         

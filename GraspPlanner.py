@@ -53,5 +53,5 @@ class GraspPlanner(object):
 
         # Grasp the bottle
         task_manipulation = openravepy.interfaces.TaskManipulation(self.robot)
-        task_manipultion.CloseFingers()
+        task_manipulation.CloseFingers()
     
