@@ -1,11 +1,10 @@
 
 class AStarPlanner(object):
     
-    def __init__(self, planning_env, visualize, herb):
+    def __init__(self, planning_env, visualize):
         self.planning_env = planning_env
         self.visualize = visualize
         self.nodes = dict()
-        self.herb = herb
 
     def Plan(self, start_config, goal_config):
 
@@ -41,7 +40,7 @@ class AStarPlanner(object):
 
         print ("Running AStarPlanner for start state ID %d , goal state ID %d" % (start_id, goal_id) )
 
-        graph_manager = GraphManager(robot_start_state, robot_goal_state, self.planning_env, self.herb)
+        graph_manager = GraphManager(robot_start_state, robot_goal_state, self.planning_env)
 
         while ( not (graph_manager.is_goal_state_expanded_) and (not (len(graph_manager.open_queue_)==0)) ):
             current_min_f_state = graph_manager.popMinFValStateFromQueue()
@@ -123,7 +122,7 @@ class GraphManager(object):
 
     # planning_env_
 
-    def __init__(self, start_state, goal_state, planning_env, herb):
+    def __init__(self, start_state, goal_state, planning_env):
         self.start_state_ = start_state
         self.goal_state_ = goal_state
         self.is_goal_state_expanded_ = False
@@ -135,7 +134,6 @@ class GraphManager(object):
         self.num_nodes_expanded = 0
         self.num_nodes_expanded_ = 0
         self.debug_ = False
-        self.herb = herb
 
         self.insertStateInOpenQueue(start_state)
 
@@ -234,9 +232,6 @@ class GraphManager(object):
 
                 else:
                     similar_state_in_open = successor_state
-
-                if self.herb:
-                    self.prim_cost_ = 0.2 * self.planning_env_.ComputeDistance(successor_state_id, current_graph_state.id_)
 
                 if (similar_state_in_open.gval_ > current_graph_state.gval_ + self.prim_cost_):
                     successor_state.gval_ = current_graph_state.gval_ + self.prim_cost_
