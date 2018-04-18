@@ -264,8 +264,6 @@ class GraphManager(object):
         if(pred_id != self.start_state_.id_):
             raise Exception('ERROR: Start State not reached from back tracking - getPathIDsToGoal')
 
-        print 
-
         return path_ids
 
     def getPathActionList(self):
@@ -287,7 +285,6 @@ class GraphManager(object):
         if(pred_id != self.start_state_.id_):
             raise Exception('ERROR: Start State not reached from back tracking - getPathIDsToGoal')
 
-        print 
 
         return path_actions
 
