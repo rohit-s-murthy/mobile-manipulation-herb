@@ -47,14 +47,17 @@ class AStarPlanner(object):
             graph_manager.expandGraphState(current_min_f_state)
 
         path_ids = []
+        path_actions = []
         if (graph_manager.is_goal_state_expanded_):
             path_ids = graph_manager.getPathIDsToGoal()
+            path_actions = graph_manager.getPathActionList()
 
         else:
             print "Path Not Found!"
             raise Exception('FAILURE: Path Not Found!')
 
         path_ids.reverse()
+        path_actions.reverse()
 
         if self.visualize:
             self.planning_env.InitializePlot(goal_config)
@@ -79,7 +82,7 @@ class AStarPlanner(object):
         # plan.append(start_config)
         # plan.append(goal_config)
 
-        return plan
+        return plan_actions
 
 
 class GraphState(object):
@@ -97,6 +100,7 @@ class GraphState(object):
         self.fval_ = gval + hval
         self.hval_ = hval
         self.gval_ = gval
+        self.action_ = None
 
     def printInfo(self, planning_env):
         if(self.pred_id_ >= 0):
@@ -106,6 +110,8 @@ class GraphState(object):
 
         # print ("State ID: %d , Pred ID: %d , F-Value: %f , H-Value: %f , G-Value: %f" % (self.id_, self.pred_id_, self.fval_, self.hval_, self.gval_) )
 
+    def setAction(self, action):
+        self.action_ = action
 
 class GraphManager(object):
 
@@ -212,7 +218,7 @@ class GraphManager(object):
             print('No. of nodes expanded 2: {}'.format(self.num_nodes_expanded_))
 
 
-        successor_states_id = self.planning_env_.GetSuccessors(current_graph_state.id_)
+        successor_states_id, successor_states_actions = self.planning_env_.GetSuccessors(current_graph_state.id_)
 
         for i, successor_state_id in enumerate(successor_states_id):
             if not(self.planning_env_.checkSucc(self.planning_env_.discrete_env.NodeIdToConfiguration(successor_state_id))):
@@ -220,6 +226,7 @@ class GraphManager(object):
                 raw_input()
 
             successor_state = GraphState()
+            successpr_state.action_ = successor_states_actions[i]
             successor_state.id_ = successor_state_id
             successor_state.pred_id_ = -1
             successor_state.hval_ = self.getHeuristicValue(successor_state)
@@ -260,6 +267,31 @@ class GraphManager(object):
         print 
 
         return path_ids
+
+    def getPathActionList(self):
+        path_ids = [self.goal_state_.id_]
+        path_actions = [self.goal_state_.action_]
+
+        pred_id = self.goal_state_.pred_id_
+
+        while (pred_id != self.start_state_.id_):
+
+            index = [x.id_ for x in self.closed_list_].index(pred_id)
+            g_state = self.closed_list_[index]
+            path_ids.append(g_state.id_)
+            path_actions.append(g_state.action_)
+            pred_id = g_state.pred_id_
+
+        path_ids.append(self.start_state_.id_)
+
+        if(pred_id != self.start_state_.id_):
+            raise Exception('ERROR: Start State not reached from back tracking - getPathIDsToGoal')
+
+        print 
+
+        return path_actions
+
+
 
 
 
