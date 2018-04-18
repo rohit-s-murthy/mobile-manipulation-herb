@@ -56,7 +56,7 @@ if __name__ == "__main__":
     raw_input('Move robot to goal config and press enter')
     gid = base_env.discrete_env.ConfigurationToNodeId(herb_base.GetCurrentConfiguration())
     goal_config = base_env.discrete_env.NodeIdToConfiguration(gid)
-    goal_config = [2, 2, 0]
+    goal_config = [-4, 0, 0]
     print(goal_config)
     herb_base.SetCurrentConfiguration(goal_config)
 
@@ -71,6 +71,7 @@ if __name__ == "__main__":
     traj = herb_base.ConvertPlanToTrajectory(plan)
 
     raw_input('Press any key to play trajectory')
+    herb_base.SetCurrentConfiguration(start_config)
     herb_base.ExecuteTrajectory(traj)
 
     raw_input('Press any key to quit.')

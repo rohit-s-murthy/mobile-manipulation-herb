@@ -82,7 +82,7 @@ class AStarPlanner(object):
         # plan.append(start_config)
         # plan.append(goal_config)
 
-        return plan_actions
+        return path_actions
 
 
 class GraphState(object):
@@ -139,7 +139,7 @@ class GraphManager(object):
         self.planning_env_ = planning_env
         self.num_nodes_expanded = 0
         self.num_nodes_expanded_ = 0
-        self.debug_ = False
+        self.debug_ = True
 
         self.insertStateInOpenQueue(start_state)
 
@@ -240,7 +240,7 @@ class GraphManager(object):
                 else:
                     similar_state_in_open = successor_state
 
-                self.prim_cost_ = 0.02 * self.planning_env_.ComputeDistance(successor_state_id, current_graph_state.id_)
+                self.prim_cost_ = self.planning_env_.ComputeDistance(successor_state_id, current_graph_state.id_)
 
                 if (similar_state_in_open.gval_ > current_graph_state.gval_ + self.prim_cost_):
                     successor_state.gval_ = current_graph_state.gval_ + self.prim_cost_
