@@ -106,7 +106,7 @@ class GraphState(object):
         if(self.pred_id_ >= 0):
             current_state_config = planning_env.discrete_env.NodeIdToGridCoord(self.id_)
             parent_state_config = planning_env.discrete_env.NodeIdToGridCoord(self.pred_id_)
-            print ("State: (%d, %d) , Pred: (%d, %d) , F-Value: %f , H-Value: %f , G-Value: %f" % (current_state_config[0], current_state_config[1], parent_state_config[0], parent_state_config[1], self.fval_, self.hval_, self.gval_))
+            print ("State: (%d, %d, %d) , Pred: (%d, %d, %d) , F-Value: %f , H-Value: %f , G-Value: %f" % (current_state_config[0], current_state_config[1],current_state_config[2],  parent_state_config[0], parent_state_config[1], parent_state_config[2], self.fval_, self.hval_, self.gval_))
 
         # print ("State ID: %d , Pred ID: %d , F-Value: %f , H-Value: %f , G-Value: %f" % (self.id_, self.pred_id_, self.fval_, self.hval_, self.gval_) )
 
@@ -226,7 +226,7 @@ class GraphManager(object):
                 raw_input()
 
             successor_state = GraphState()
-            successpr_state.action_ = successor_states_actions[i]
+            successor_state.action_ = successor_states_actions[i]
             successor_state.id_ = successor_state_id
             successor_state.pred_id_ = -1
             successor_state.hval_ = self.getHeuristicValue(successor_state)
@@ -239,6 +239,8 @@ class GraphManager(object):
 
                 else:
                     similar_state_in_open = successor_state
+
+                self.prim_cost_ = 0.02 * self.planning_env_.ComputeDistance(successor_state_id, current_graph_state.id_)
 
                 if (similar_state_in_open.gval_ > current_graph_state.gval_ + self.prim_cost_):
                     successor_state.gval_ = current_graph_state.gval_ + self.prim_cost_

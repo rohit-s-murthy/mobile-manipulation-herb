@@ -1,6 +1,7 @@
 import numpy, openravepy
 import pylab as pl
 from DiscreteEnvironment import DiscreteEnvironment
+from IPython import embed
 
 class Control(object):
     def __init__(self, omega_left, omega_right, duration):
@@ -19,8 +20,8 @@ class SimpleEnvironment(object):
         self.herb = herb
         self.robot = herb.robot
         self.boundary_limits = [[-5., -5., -numpy.pi], [5., 5., numpy.pi]]
-        lower_limits, upper_limits = self.boundary_limits
-        self.discrete_env = DiscreteEnvironment(resolution, lower_limits, upper_limits)
+        self.lower_limits, self.upper_limits = self.boundary_limits
+        self.discrete_env = DiscreteEnvironment(resolution, self.lower_limits, self.upper_limits)
 
         self.resolution = resolution
         self.ConstructActions()
@@ -65,6 +66,23 @@ class SimpleEnvironment(object):
 
         return footprint
 
+    def PlotAction(self, action):
+
+        fig = pl.figure()
+        lower_limits, upper_limits = self.boundary_limits
+        pl.xlim([lower_limits[0], upper_limits[0]])
+        pl.ylim([lower_limits[1], upper_limits[1]])  
+
+        xpoints = [config[0] for config in action.footprint]
+        ypoints = [config[1] for config in action.footprint]
+        print('xpoints: {}'.format(xpoints))
+        print('ypoints: {}'.format(ypoints))
+        print('control: {}, {}, {}'.format(action.control.ul, action.control.ur, action.control.dt))
+        pl.plot(xpoints, ypoints, 'kx-')
+                     
+        pl.ion()
+        pl.show()      
+
     def PlotActionFootprints(self, idx):
 
         actions = self.actions[idx]
@@ -76,7 +94,7 @@ class SimpleEnvironment(object):
         for action in actions:
             xpoints = [config[0] for config in action.footprint]
             ypoints = [config[1] for config in action.footprint]
-            pl.plot(xpoints, ypoints, 'k')
+            pl.plot(xpoints, ypoints, 'kx-')
                      
         pl.ion()
         pl.show()
@@ -89,29 +107,32 @@ class SimpleEnvironment(object):
         #  an action set
         self.actions = dict()
 
-        dur_res = 11
-        dur_max = 1.0
-        omega_res = 11
+        dur_res = 2
+        dur_min = 2.0
+        dur_max = 4.0
+        omega_res = 2
         omega_max = 1.0
         self.controls = []
 
-        for i in range(dur_res):
-          for j in range(omega_res):
-              for k in range(omega_res):
-                dur = dur_max * i / (dur_res - 1)
-                omega_l = omega_max * j / (omega_res - 1)
-                omega_r = omega_max * k / (omega_res - 1)
+        for j in range(omega_res):
+            for k in range(omega_res):
+                for i in range(dur_res):
 
-                self.controls.append(Control( omega_l,  omega_r, dur))
-                self.controls.append(Control(-omega_l,  omega_r, dur))
-                self.controls.append(Control( omega_l, -omega_r, dur))
-                self.controls.append(Control(-omega_l, -omega_r, dur))
+                    dur = (dur_max - dur_min) * i / (dur_res - 1) + dur_min
+                    omega_l = omega_max * j / (omega_res - 1)
+                    omega_r = omega_max * k / (omega_res - 1)
+
+                    self.controls.append(Control( omega_l,  omega_r, dur))
+                    self.controls.append(Control(-omega_l,  omega_r, dur))
+                    self.controls.append(Control( omega_l, -omega_r, dur))
+                    self.controls.append(Control(-omega_l, -omega_r, dur))
 
         wc = [0., 0., 0.]
         grid_coordinate = self.discrete_env.ConfigurationToGridCoord(wc)
 
         # Iterate through each possible starting orientation
         for idx in range(int(self.discrete_env.num_cells[2])):
+
             self.actions[idx] = []
             grid_coordinate[2] = idx
             start_config = self.discrete_env.GridCoordToConfiguration(grid_coordinate)
@@ -119,18 +140,68 @@ class SimpleEnvironment(object):
             for c in self.controls:
                 ftpt = self.GenerateFootprintFromControl(start_config, c)
                 self.actions[idx].append(Action(c, ftpt))
-            
+                # if c.ul > 0.6 and c.ur!=0 and c.dt!=0:
+                #     self.PlotAction(Action(c,ftpt))
+                #     embed()
+
+            # print(len(self.actions[idx]))
+            # self.PlotActionFootprints(idx)
+
+    def checkSucc(self, config):
+
+        self.env = self.robot.GetEnv()
+        robot_pose = self.robot.GetTransform()
+        # table = self.robot.GetEnv().GetBodies()[1]
+        # pdb.set_trace()
+        # config = config.tolist()
+        # self.robot.SetActiveDOFValues(config)
+
+        robot_pose[0][3] = config[0];
+        robot_pose[1][3] = config[1];
+        self.robot.SetTransform(robot_pose);
+
+        if self.env.CheckCollision(self.robot):#,table):
+            return False
+
+        for i in range(self.discrete_env.dimension):
+            if not(self.lower_limits[i] <= config[i] <= self.upper_limits[i]):
+                return False
+
+        return True
 
     def GetSuccessors(self, node_id):
 
         successors = []
+        successors_config = []
+        action_valid = []
 
         # TODO: Here you will implement a function that looks
         #  up the configuration associated with the particular node_id
         #  and return a list of node_ids and controls that represent the neighboring
         #  nodes
-        
-        return successors
+
+        grid_coord = self.discrete_env.NodeIdToGridCoord(node_id)
+        actions = self.actions[grid_coord[2]]   # actions: List of Action objects
+        num_actions = len(actions)
+
+        for action in actions:
+            ftpt = action.footprint     # ftpt: List of footprint configs
+            valid = False
+            
+            for pt in ftpt:
+                if not(self.checkSucc(pt)):
+                    valid = False
+                    break
+                else:
+                    valid = True
+                    
+                if valid:
+                    successors_config.append(pt)
+                    action_valid.append(action)
+
+        successors = [self.discrete_env.ConfigurationToNodeId(x) for x in successors_config]
+
+        return successors, action_valid
 
     def ComputeDistance(self, start_id, end_id):
 
@@ -139,6 +210,10 @@ class SimpleEnvironment(object):
         # TODO: Here you will implement a function that 
         # computes the distance between the configurations given
         # by the two node ids
+
+        start_config = self.discrete_env.NodeIdToConfiguration(start_id)
+        end_config = self.discrete_env.NodeIdToConfiguration(end_id)
+        dist = numpy.linalg.norm(end_config - start_config)
 
         return dist
 
@@ -149,7 +224,11 @@ class SimpleEnvironment(object):
         # TODO: Here you will implement a function that 
         # computes the heuristic cost between the configurations
         # given by the two node ids
+
+        start_config = self.discrete_env.NodeIdToConfiguration(start_id)
+        end_config = self.discrete_env.NodeIdToConfiguration(goal_id)
+        cost = numpy.linalg.norm(end_config - start_config)
         
         
-        return cost
+        return 100 * cost
 
