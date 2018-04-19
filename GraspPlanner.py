@@ -27,10 +27,12 @@ class GraspPlanner(object):
         self.graspindices = self.gmodel.graspindices
         self.grasps = self.gmodel.grasps
 
+        # this is the top ordered grasp
         a_grasp = numpy.array([  0.00000000e+00   ,0.00000000e+00,   1.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02, -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,   1.72805325e+09,   3.92523115e-16,   1.37940032e-01  ,-6.93521844e-01,   7.07106781e-01,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02,  -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64123740e-02,   1.86886886e-01   ,5.00000000e-02,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,3.14159265e+00,   1.13559418e+00,   1.95076665e-01,  -9.80787997e-01   ,0.00000000e+00,   1.32500002e+00,   1.52500002e+00,   1.51400002e+00   ,1.00000000e+00,   1.00000000e+00,   1.00000000e+00,   2.50000000e-02   ,3.60495281e-03,  -6.19499877e-03,   3.49628257e-02, 5.00000000e-02   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00])
         
 
         self.show_grasp(a_grasp)
+        raw_input("Visualizing grasp, enter to continue")
         # self.order_grasps()
 
         # print self.grasps_ordered[0]
@@ -55,7 +57,7 @@ class GraspPlanner(object):
         numfailures = 0
         starttime = time.time()
         timeout = 100000
-        N = 5
+        N = 1
         with self.robot:
             while len(goals) < N:
                 if time.time()-starttime > timeout:
@@ -94,6 +96,9 @@ class GraspPlanner(object):
         #  grasping the bottle
         ###################################################################
         
+        base_pose = pose
+        grasp_config = a_config
+
         return base_pose, grasp_config
 
     def PlanToGrasp(self, obj):
