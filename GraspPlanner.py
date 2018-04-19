@@ -1,5 +1,6 @@
 import logging, numpy, openravepy
 from scipy.spatial import ConvexHull
+from scipy.spatial.qhull import QhullError
 import scipy
 
 class GraspPlanner(object):
@@ -75,9 +76,10 @@ class GraspPlanner(object):
         self.grasps_ordered = self.grasps.copy()
         scores = []
         for i, grasp in enumerate(self.grasps_ordered):
-          scores.insert(i, self.eval_grasp(grasp))
+          score = self.eval_grasp(grasp)
+          print "score", score
+          scores.insert(i, score)
 
-        print scores[0]
         minsigma_scores = [item[0] for item in scores]                # Extractin$
         isotropy_index_scores = [item[1] for item in scores]          # Extractin$
         ellipsoid_vol_scores = [item[2] for item in scores]           # Extractin$
@@ -120,14 +122,14 @@ class GraspPlanner(object):
     # higher score should be a better grasp
     def eval_grasp(self, grasp):
         with self.robot:
-          print "-----------------------"
-          print "grasp"
+          # print "-----------------------"
+          # print "grasp"
           try:
             contacts,finalconfig,mindist,volume = self.gmodel.testGrasp(grasp=grasp,translate=True,forceclosure=False)
 
             obj_position = self.gmodel.target.GetTransform()[0:3,3]
 
-            print "obj_pos", obj_position
+            # print "obj_pos", obj_position
 
             G = numpy.zeros((6, contacts.shape[0])) # Initializing the wrench matrix
         
@@ -142,14 +144,14 @@ class GraspPlanner(object):
 
             # Checking if origin lies inside convex hull of the wrench matrix
             try:
-              print "G"
+              # print "G", G
               hull = ConvexHull(G.transpose())
-              print "hull"
+              # print "hull"
               origin = [0.0,0.0,0.0,0.0,0.0,0.0]
               G_origin = numpy.vstack((G.transpose(),origin))
-              print "G_origin"
+              # print "G_origin"
               hull_origin = ConvexHull(G_origin)
-              print "hull_origin"
+              # print "hull_origin"
               if list(hull.vertices) == list(hull_origin.vertices):
                 b = True
                 print("True")
@@ -157,7 +159,7 @@ class GraspPlanner(object):
                 b = False
                 print("False")
 
-            except:
+            except QhullError:
               b = False
               print("Exception: False")
 
@@ -195,6 +197,6 @@ class GraspPlanner(object):
           except openravepy.planning_error,e:
             #you get here if there is a failure in planning
             #example: if the hand is already intersecting the object at the initial position/orientation
-            return  0.00
+            return  [0, 0, 0, 0]
 
     
