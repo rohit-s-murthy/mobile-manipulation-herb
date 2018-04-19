@@ -2,6 +2,7 @@ import logging, numpy, openravepy
 from scipy.spatial import ConvexHull
 from scipy.spatial.qhull import QhullError
 import scipy
+import time
 
 class GraspPlanner(object):
 
@@ -26,8 +27,56 @@ class GraspPlanner(object):
         self.graspindices = self.gmodel.graspindices
         self.grasps = self.gmodel.grasps
 
-        self.order_grasps()
-       
+        a_grasp = numpy.array([  0.00000000e+00   ,0.00000000e+00,   1.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02, -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,   1.72805325e+09,   3.92523115e-16,   1.37940032e-01  ,-6.93521844e-01,   7.07106781e-01,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02,  -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64123740e-02,   1.86886886e-01   ,5.00000000e-02,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,3.14159265e+00,   1.13559418e+00,   1.95076665e-01,  -9.80787997e-01   ,0.00000000e+00,   1.32500002e+00,   1.52500002e+00,   1.51400002e+00   ,1.00000000e+00,   1.00000000e+00,   1.00000000e+00,   2.50000000e-02   ,3.60495281e-03,  -6.19499877e-03,   3.49628257e-02, 5.00000000e-02   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00])
+        
+
+        # self.show_grasp(a_grasp)
+        # self.order_grasps()
+
+        # print self.grasps_ordered[0]
+
+        '''
+        for grasp in self.ordered_grasps:
+          # these have already been checking for table collision
+          # just have to do inverse reachability and pick any feasible pose
+          pass
+        '''
+
+        self.irmodel = openravepy.databases.inversereachability.InverseReachabilityModel(robot=self.robot)
+
+        Tgrasp = a_grasp
+        densityfn,samplerfn,bounds = self.irmodel.computeBaseDistribution(a_grasp)
+
+        # initialize sampling parameters
+        goals = []
+        numfailures = 0
+        starttime = time.time()
+        timeout = 100000
+        with self.robot:
+            while len(goals) < 5:
+                if time.time()-starttime > timeout:
+                    break
+                poses,jointstate = samplerfn(N-len(goals))
+                for pose in poses:
+                    self.robot.SetTransform(pose)
+                    self.robot.SetDOFValues(*jointstate)
+                    # validate that base is not in collision
+                    if not self.manip.CheckIndependentCollision(CollisionReport()):
+                        q = self.manip.FindIKSolution(Tgrasp,filteroptions=IkFilterOptions.CheckEnvCollisions)
+                        if q is not None:
+                            values = self.robot.GetDOFValues()
+                            values[self.manip.GetArmIndices()] = q
+                            goals.append((Tgrasp,pose,values))
+                        elif self.manip.FindIKSolution(Tgrasp,0) is None:
+                            numfailures += 1
+
+        print 'showing %d results'%N
+        for ind,goal in enumerate(goals):
+            raw_input('press ENTER to show goal %d'%ind)
+            Tgrasp,pose,values = goal
+            self.robot.SetTransform(pose)
+            self.robot.SetDOFValues(values)
+
         # get ordered grasps
         # iterate through ordered grasps
         # for each, check if it collides with table
@@ -200,3 +249,20 @@ class GraspPlanner(object):
             return  [0, 0, 0, 0]
 
     
+    #displays the grasp
+    def show_grasp(self, grasp, delay=1.5):
+        with openravepy.RobotStateSaver(self.gmodel.robot):
+          with self.gmodel.GripperVisibility(self.gmodel.manip):
+            time.sleep(0.1) # let viewer update?
+            try:
+                print "showing!"
+                contacts,finalconfig,mindist,volume = self.gmodel.testGrasp(grasp=grasp,translate=True,forceclosure=True)
+                #if mindist == 0:
+                #  print 'grasp is not in force closure!'
+                contactgraph = self.gmodel.drawContacts(contacts) if len(contacts) > 0 else None
+                self.gmodel.robot.GetController().Reset(0)
+                self.gmodel.robot.SetDOFValues(finalconfig[0])
+                self.gmodel.robot.SetTransform(finalconfig[1])
+                time.sleep(delay)
+            except openravepy.planning_error,e:
+              print 'bad grasp!',e
