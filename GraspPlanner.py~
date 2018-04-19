@@ -30,7 +30,7 @@ class GraspPlanner(object):
         a_grasp = numpy.array([  0.00000000e+00   ,0.00000000e+00,   1.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02, -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,   1.72805325e+09,   3.92523115e-16,   1.37940032e-01  ,-6.93521844e-01,   7.07106781e-01,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02,  -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64123740e-02,   1.86886886e-01   ,5.00000000e-02,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,3.14159265e+00,   1.13559418e+00,   1.95076665e-01,  -9.80787997e-01   ,0.00000000e+00,   1.32500002e+00,   1.52500002e+00,   1.51400002e+00   ,1.00000000e+00,   1.00000000e+00,   1.00000000e+00,   2.50000000e-02   ,3.60495281e-03,  -6.19499877e-03,   3.49628257e-02, 5.00000000e-02   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00])
         
 
-        # self.show_grasp(a_grasp)
+        self.show_grasp(a_grasp)
         # self.order_grasps()
 
         # print self.grasps_ordered[0]
@@ -44,15 +44,20 @@ class GraspPlanner(object):
 
         self.irmodel = openravepy.databases.inversereachability.InverseReachabilityModel(robot=self.robot)
 
-        densityfn,samplerfn,bounds = self.irmodel.computeBaseDistribution(a_grasp)
+        if self.irmodel.load():
+          print "irmodel loaded"
+
+        Tgrasp = self.gmodel.getGlobalGraspTransform(a_grasp, collisionfree=True)
+        densityfn,samplerfn,bounds = self.irmodel.computeBaseDistribution(Tgrasp)
 
         # initialize sampling parameters
         goals = []
         numfailures = 0
         starttime = time.time()
         timeout = 100000
+        N = 5
         with self.robot:
-            while len(goals) < 5:
+            while len(goals) < N:
                 if time.time()-starttime > timeout:
                     break
                 poses,jointstate = samplerfn(N-len(goals))
@@ -60,13 +65,13 @@ class GraspPlanner(object):
                     self.robot.SetTransform(pose)
                     self.robot.SetDOFValues(*jointstate)
                     # validate that base is not in collision
-                    if not self.manip.CheckIndependentCollision(CollisionReport()):
-                        q = self.manip.FindIKSolution(Tgrasp,filteroptions=IkFilterOptions.CheckEnvCollisions)
+                    if not self.gmodel.manip.CheckIndependentCollision(openravepy.CollisionReport()):
+                        q = self.gmodel.manip.FindIKSolution(Tgrasp,filteroptions=openravepy.IkFilterOptions.CheckEnvCollisions)
                         if q is not None:
                             values = self.robot.GetDOFValues()
-                            values[self.manip.GetArmIndices()] = q
+                            values[self.gmodel.manip.GetArmIndices()] = q
                             goals.append((Tgrasp,pose,values))
-                        elif self.manip.FindIKSolution(Tgrasp,0) is None:
+                        elif self.gmodel.manip.FindIKSolution(Tgrasp,0) is None:
                             numfailures += 1
 
         print 'showing %d results'%N
