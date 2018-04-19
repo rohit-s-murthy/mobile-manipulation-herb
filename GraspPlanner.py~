@@ -32,7 +32,6 @@ class GraspPlanner(object):
         
 
         self.show_grasp(a_grasp)
-        raw_input("Visualizing grasp, enter to continue")
         # self.order_grasps()
 
         # print self.grasps_ordered[0]
@@ -97,7 +96,8 @@ class GraspPlanner(object):
         ###################################################################
         
         base_pose = pose
-        grasp_config = a_config
+        grasp_config = a_grasp
+        raw_input('press ENTER to stop showing goal)
 
         return base_pose, grasp_config
 
@@ -272,6 +272,6 @@ class GraspPlanner(object):
                 self.gmodel.robot.GetController().Reset(0)
                 self.gmodel.robot.SetDOFValues(finalconfig[0])
                 self.gmodel.robot.SetTransform(finalconfig[1])
-                time.sleep(delay)
+                raw_input("Visualizing grasp, enter to continue")
             except openravepy.planning_error,e:
               print 'bad grasp!',e
