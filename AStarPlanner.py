@@ -21,6 +21,7 @@ class AStarPlanner(object):
 
         # AM TODO: Check for validity of start_config & goal_config
         start_id = self.planning_env.discrete_env.ConfigurationToNodeId(start_config)
+        print('getting goal_id')
         goal_id = self.planning_env.discrete_env.ConfigurationToNodeId(goal_config)
         # self.robot.SetActiveDOFValues(goal_config)
 

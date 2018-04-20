@@ -1,5 +1,6 @@
 import numpy, operator
 from RRTPlanner import RRTTree
+from IPython import embed
 
 class RRTConnectPlanner(object):
 
@@ -165,6 +166,8 @@ class RRTConnectPlanner(object):
                     num_vertices = len(plan)
                     print "Number of Vertices: " + str(num_vertices) + " nodes."
 
+                print('plan in RRTConnect: {}'.format(plan))
+                print('plan list: {}'.format(plan[0]))
 
                 return plan, num_vertices
 

@@ -6,7 +6,7 @@ class HerbEnvironment(object):
     
     def __init__(self, herb):
         self.robot = herb.robot
-
+        self.herb = herb
         # add a table and move the robot into place
         # table = self.robot.GetEnv().ReadKinBodyXMLFile('models/objects/table.kinbody.xml')
         # self.robot.GetEnv().Add(table)
@@ -42,6 +42,7 @@ class HerbEnvironment(object):
 
         self.env = self.robot.GetEnv()
         table = self.robot.GetEnv().GetBodies()[1]
+        bottle = self.robot.GetEnv().GetBodies()[2]
 
         sample_goal = False;
         bias_sample = numpy.random.uniform(0,1)
@@ -61,7 +62,7 @@ class HerbEnvironment(object):
                     config[i] = numpy.random.uniform(lower_limits[i], upper_limits[i])
 
                 self.robot.SetActiveDOFValues(config)
-                collision = self.env.CheckCollision(self.robot,table) or self.robot.CheckSelfCollision()
+                collision = self.env.CheckCollision(self.robot,table) or self.env.CheckCollision(self.robot,bottle) or self.robot.CheckSelfCollision()
                 is_valid = not (collision)
 
 
