@@ -94,12 +94,10 @@ class SimpleEnvironment(object):
         for action in actions:
             xpoints = [config[0] for config in action.footprint]
             ypoints = [config[1] for config in action.footprint]
-            pl.plot(xpoints, ypoints, 'kx-')
+            pl.plot(xpoints, ypoints, 'k')
                      
         pl.ion()
         pl.show()
-
-        
 
     def ConstructActions(self):
 
@@ -107,18 +105,18 @@ class SimpleEnvironment(object):
         #  an action set
         self.actions = dict()
 
-        # dur_res = 2
+        # dur = 1.0
         # dur_min = 2.0
         # dur_max = 4.0
-        # omega_res = 2
+        # omega_res = 3
         # omega_max = 1.0
         # self.controls = []
 
         # for j in range(omega_res):
         #     for k in range(omega_res):
-        #         for i in range(dur_res):
+        #         # for i in range(dur_res):
 
-        #             dur = (dur_max - dur_min) * i / (dur_res - 1) + dur_min
+        #             # dur = (dur_max - dur_min) * i / (dur_res - 1) + dur_min
         #             omega_l = omega_max * j / (omega_res - 1)
         #             omega_r = omega_max * k / (omega_res - 1)
 
@@ -140,14 +138,15 @@ class SimpleEnvironment(object):
         #     for c in self.controls:
         #         ftpt = self.GenerateFootprintFromControl(start_config, c)
         #         self.actions[idx].append(Action(c, ftpt))
-        #         if c.ul > 0.6 and c.ur!=0 and c.dt!=0:
-        #             self.PlotAction(Action(c,ftpt))
-        #             embed()
+        #         # if c.ul > 0.6 and c.ur!=0 and c.dt!=0:
+        #         #     self.PlotAction(Action(c,ftpt))
+        #         #     embed()
 
-            # print(len(self.actions[idx]))
-            # self.PlotActionFootprints(idx)
+        #     # print(len(self.actions[idx]))
+        #     # self.PlotActionFootprints(idx)
 
-        turn_speed = 0.75
+        turn_speed1 = 1.5
+        turn_speed2 = 0.75
         forward_speed = 1.0
         dur = 1.0
 
@@ -155,17 +154,24 @@ class SimpleEnvironment(object):
 
         self.controls.append(Control(forward_speed, forward_speed, dur))
         self.controls.append(Control(-forward_speed, -forward_speed, dur))
-        # self.controls.append(Control(turn_speed, -turn_speed, dur))
-        # self.controls.append(Control(-turn_speed, turn_speed, dur))
-        
+        self.controls.append(Control(turn_speed1, -turn_speed1, dur))
+        self.controls.append(Control(-turn_speed1, turn_speed1, dur))
+        self.controls.append(Control(turn_speed2, -turn_speed2, dur))
+        self.controls.append(Control(-turn_speed2, turn_speed2, dur))
+
+        self.controls.append(Control(turn_speed1, turn_speed2, dur))
+        self.controls.append(Control(turn_speed2, turn_speed1, dur))
+        self.controls.append(Control(-turn_speed1, -turn_speed2, dur))
+        self.controls.append(Control(-turn_speed2, -turn_speed1, dur))
+
         # self.controls.append(Control(2.5, 2.5, 1.0))
         # self.controls.append(Control(-2.5, -2.5, 1.0))
         
         # self.controls.append(Control(1.0, 1.0, 1.0))
         # self.controls.append(Control(-1.0, -1.0, 1.0))
 
-        self.controls.append(Control(5*numpy.pi/16, -5*numpy.pi/16, 1.0))
-        self.controls.append(Control(-5*numpy.pi/16, 5*numpy.pi/16, 1.0))
+        # self.controls.append(Control(5*numpy.pi/16, -5*numpy.pi/16, 1.0))
+        # self.controls.append(Control(-5*numpy.pi/16, 5*numpy.pi/16, 1.0))
 
         wc = [0., 0., 0.]
         grid_coordinate = self.discrete_env.ConfigurationToGridCoord(wc)
@@ -177,11 +183,15 @@ class SimpleEnvironment(object):
 
             for c in self.controls:
                 ftpt = self.GenerateFootprintFromControl(start_config, c)
-                # print('ftpt: {}'.format(ftpt))
+                # print('ftpt: {}\n'.format(ftpt))
                 self.actions[idx].append(Action(c, ftpt))
                 # if c.ul > 0.6 and c.ur!=0 and c.dt!=0:
                 # self.PlotAction(Action(c,ftpt))
                 # embed()
+            
+            # self.PlotActionFootprints(idx)
+        # embed()
+
 
     def checkSucc(self, config):
 
@@ -219,6 +229,7 @@ class SimpleEnvironment(object):
         grid_coord = self.discrete_env.NodeIdToGridCoord(node_id)
         config_coord = self.discrete_env.NodeIdToConfiguration(node_id)
         actions = self.actions[grid_coord[2]]   # actions: List of Action objects
+        # actions = self.ConstructActions(grid_coord)
         num_actions = len(actions)
 
         # Testing
@@ -228,6 +239,8 @@ class SimpleEnvironment(object):
         for action in actions:
             ftpt = action.footprint     # ftpt: List of footprint configs
             ftpt += config_coord
+            # embed()
+            
             valid = False
             
             for pt in ftpt:
@@ -259,8 +272,8 @@ class SimpleEnvironment(object):
         end_config = self.discrete_env.NodeIdToConfiguration(end_id)
 
         diff = end_config - start_config
-        # weight = numpy.array([10, 10, 1])
-        # diff = numpy.dot(diff, weight)
+        weight = numpy.array([10, 10, 1])
+        diff = numpy.dot(diff, weight)
         dist = numpy.linalg.norm(diff)
 
         return dist
@@ -276,8 +289,8 @@ class SimpleEnvironment(object):
         start_config = self.discrete_env.NodeIdToConfiguration(start_id)
         end_config = self.discrete_env.NodeIdToConfiguration(goal_id)
         diff = end_config - start_config
-        # weight = numpy.array([10, 10, 1])
-        # diff = numpy.dot(diff, weight)
+        weight = numpy.array([10, 10, 1])
+        diff = numpy.dot(diff, weight)
         cost = numpy.linalg.norm(diff)
         
         

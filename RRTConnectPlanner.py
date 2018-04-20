@@ -167,7 +167,6 @@ class RRTConnectPlanner(object):
                     print "Number of Vertices: " + str(num_vertices) + " nodes."
 
                 print('plan in RRTConnect: {}'.format(plan))
-                print('plan list: {}'.format(plan[0]))
 
                 return plan, num_vertices
 

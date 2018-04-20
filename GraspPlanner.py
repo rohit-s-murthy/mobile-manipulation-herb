@@ -76,6 +76,7 @@ class GraspPlanner(object):
                         elif self.gmodel.manip.FindIKSolution(Tgrasp,0) is None:
                             numfailures += 1
 
+
         print 'showing %d results'%N
         for ind,goal in enumerate(goals):
             # raw_input('press ENTER to show goal %d'%ind)
@@ -136,23 +137,24 @@ class GraspPlanner(object):
         herb_base.SetCurrentConfiguration(start_pose)
         print 'Executing base trajectory'
         self.base_planner.planning_env.herb.ExecuteTrajectory(base_traj)
-
+        raw_input('Press ENTER to start arm planning')
         # Now plan the arm to the grasp configuration
         start_config = numpy.array(self.arm_planner.planning_env.herb.GetCurrentConfiguration())
         print('start_config: {}'.format(start_config))
         # grasp_config = [-1.73407926e+00, -1.71189130e+00, 6.60000000e-01, 1.82239572e+00, -1.63378598e+00, 6.54778697e-01, 1.41467576e+00]
-        arm_plan = self.arm_planner.Plan(start_config, grasp_config)
+        arm_plan, _ = self.arm_planner.Plan(start_config, grasp_config)
 
         # Random Jugaad
-        arm_plan_ = [arm_plan[0][i] for i in range(len(arm_plan))]
-        arm_plan__ = [arm_plan_[i] for i in reversed(range(len(arm_plan)))]
+        arm_plan_ = [arm_plan[i] for i in range(len(arm_plan))]
+        # embed()
+        # arm_plan__ = [arm_plan_[i] for i in reversed(range(len(arm_plan)))]
         # embed()
         # print('arm_plan_: {}'.format(arm_plan_.reverse()))
-        arm_traj = self.arm_planner.planning_env.herb.ConvertPlanToTrajectory(arm_plan__)
+        arm_traj = self.arm_planner.planning_env.herb.ConvertPlanToTrajectory(arm_plan)
 
         print 'Executing arm trajectory'
         self.arm_planner.planning_env.herb.ExecuteTrajectory(arm_traj)
-
+        raw_input('Press ENTER to start grasping')
         # Grasp the bottle
         task_manipulation = openravepy.interfaces.TaskManipulation(self.robot)
         task_manipulation.CloseFingers()

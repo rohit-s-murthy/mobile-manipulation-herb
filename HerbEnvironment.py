@@ -62,7 +62,7 @@ class HerbEnvironment(object):
                     config[i] = numpy.random.uniform(lower_limits[i], upper_limits[i])
 
                 self.robot.SetActiveDOFValues(config)
-                collision = self.env.CheckCollision(self.robot,table) or self.env.CheckCollision(self.robot,bottle) or self.robot.CheckSelfCollision()
+                collision = self.robot.CheckSelfCollision() or self.env.CheckCollision(self.robot,table) or self.env.CheckCollision(self.robot,bottle)
                 is_valid = not (collision)
 
 
