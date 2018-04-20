@@ -27,9 +27,9 @@ class DiscreteEnvironment(object):
         # space to a node in discrete space
         #
 
-        print('config: {}'.format(config))
+        # print('config: {}'.format(config))
         coord = self.ConfigurationToGridCoord(config)
-        print('coord: {}'.format(coord))
+        # print('coord: {}'.format(coord))
         node_id = self.GridCoordToNodeId(coord)
 
         return node_id
