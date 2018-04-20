@@ -147,7 +147,7 @@ class SimpleEnvironment(object):
             # print(len(self.actions[idx]))
             # self.PlotActionFootprints(idx)
 
-        turn_speed = 1.5
+        turn_speed = 0.75
         forward_speed = 1.0
         dur = 1.0
 
@@ -155,8 +155,17 @@ class SimpleEnvironment(object):
 
         self.controls.append(Control(forward_speed, forward_speed, dur))
         self.controls.append(Control(-forward_speed, -forward_speed, dur))
-        self.controls.append(Control(turn_speed, -turn_speed, dur))
-        self.controls.append(Control(-turn_speed, turn_speed, dur))
+        # self.controls.append(Control(turn_speed, -turn_speed, dur))
+        # self.controls.append(Control(-turn_speed, turn_speed, dur))
+        
+        # self.controls.append(Control(2.5, 2.5, 1.0))
+        # self.controls.append(Control(-2.5, -2.5, 1.0))
+        
+        # self.controls.append(Control(1.0, 1.0, 1.0))
+        # self.controls.append(Control(-1.0, -1.0, 1.0))
+
+        self.controls.append(Control(5*numpy.pi/16, -5*numpy.pi/16, 1.0))
+        self.controls.append(Control(-5*numpy.pi/16, 5*numpy.pi/16, 1.0))
 
         wc = [0., 0., 0.]
         grid_coordinate = self.discrete_env.ConfigurationToGridCoord(wc)
@@ -178,7 +187,7 @@ class SimpleEnvironment(object):
 
         self.env = self.robot.GetEnv()
         robot_pose = self.robot.GetTransform()
-        # table = self.robot.GetEnv().GetBodies()[1]
+        table = self.robot.GetEnv().GetBodies()[1]
         # pdb.set_trace()
         # config = config.tolist()
         # self.robot.SetActiveDOFValues(config)
@@ -187,7 +196,7 @@ class SimpleEnvironment(object):
         robot_pose[1][3] = config[1];
         self.robot.SetTransform(robot_pose);
 
-        if self.env.CheckCollision(self.robot):#,table):
+        if self.env.CheckCollision(self.robot, table):
             return False
 
         for i in range(self.discrete_env.dimension):
@@ -212,6 +221,10 @@ class SimpleEnvironment(object):
         actions = self.actions[grid_coord[2]]   # actions: List of Action objects
         num_actions = len(actions)
 
+        # Testing
+        # config_coord = numpy.array([0., 0., 0.])
+        # print(config_coord)
+
         for action in actions:
             ftpt = action.footprint     # ftpt: List of footprint configs
             ftpt += config_coord
@@ -224,9 +237,11 @@ class SimpleEnvironment(object):
                 else:
                     valid = True
                     
-                if valid:
-                    successors_config.append(pt)
-                    action_valid.append(action)
+            if valid:
+                successors_config.append(pt)
+                action_valid.append(action)
+                # print('Successor: {}, action.control.ul: {}, action.control.ur: {}, footprint: {}'.format(pt, action.control.ul, action.control.ur, action.footprint))
+                # raw_input()        
 
         successors = [self.discrete_env.ConfigurationToNodeId(x) for x in successors_config]
 
@@ -244,8 +259,8 @@ class SimpleEnvironment(object):
         end_config = self.discrete_env.NodeIdToConfiguration(end_id)
 
         diff = end_config - start_config
-        weight = numpy.array([10, 10, 1])
-        diff = numpy.dot(diff, weight)
+        # weight = numpy.array([10, 10, 1])
+        # diff = numpy.dot(diff, weight)
         dist = numpy.linalg.norm(diff)
 
         return dist
@@ -261,8 +276,8 @@ class SimpleEnvironment(object):
         start_config = self.discrete_env.NodeIdToConfiguration(start_id)
         end_config = self.discrete_env.NodeIdToConfiguration(goal_id)
         diff = end_config - start_config
-        weight = numpy.array([10, 10, 1])
-        diff = numpy.dot(diff, weight)
+        # weight = numpy.array([10, 10, 1])
+        # diff = numpy.dot(diff, weight)
         cost = numpy.linalg.norm(diff)
         
         

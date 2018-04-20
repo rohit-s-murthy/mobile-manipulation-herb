@@ -1,3 +1,4 @@
+import numpy
 
 class AStarPlanner(object):
     
@@ -21,8 +22,9 @@ class AStarPlanner(object):
 
         # AM TODO: Check for validity of start_config & goal_config
         start_id = self.planning_env.discrete_env.ConfigurationToNodeId(start_config)
-        print('getting goal_id')
         goal_id = self.planning_env.discrete_env.ConfigurationToNodeId(goal_config)
+        print('start_config: {}, goal_config: {}'.format(start_config, goal_config))
+        raw_input()
         # self.robot.SetActiveDOFValues(goal_config)
 
         robot_start_state = GraphState()
@@ -140,7 +142,7 @@ class GraphManager(object):
         self.planning_env_ = planning_env
         self.num_nodes_expanded = 0
         self.num_nodes_expanded_ = 0
-        self.debug_ = True
+        self.debug_ = False
 
         self.insertStateInOpenQueue(start_state)
 
@@ -209,7 +211,15 @@ class GraphManager(object):
         self.num_nodes_expanded_ = self.num_nodes_expanded_ + 1
         self.closed_list_.append(current_graph_state)
 
-        if(self.planning_env_.ComputeDistance(current_graph_state.id_, self.goal_state_.id_) < self.epsilon_):
+        current_graph_state_config = numpy.array(self.planning_env_.discrete_env.NodeIdToConfiguration(current_graph_state.id_))
+        goal_graph_state_config = numpy.array(self.planning_env_.discrete_env.NodeIdToConfiguration(self.goal_state_.id_))
+        dist_to_goal = numpy.linalg.norm(current_graph_state_config - goal_graph_state_config)
+
+        # print current_graph_state_config
+        # print goal_graph_state_config
+        print "Distance from current state to goal: " + str(dist_to_goal) + "\n"
+
+        if(dist_to_goal < self.epsilon_):
             self.is_goal_state_expanded_ = True
             print ("Goal State found! \n")
             print('Goal State: {}'.format(self.planning_env_.discrete_env.NodeIdToConfiguration(current_graph_state.id_)))

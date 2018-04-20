@@ -29,14 +29,14 @@ if __name__ == "__main__":
     robot.controller = openravepy.RaveCreateController(robot.GetEnv(), 'IdealController')
      
     # add a table and move the robot into place
-    # table = env.ReadKinBodyXMLFile('models/objects/table.kinbody.xml')
-    # env.Add(table)
+    table = env.ReadKinBodyXMLFile('models/objects/table.kinbody.xml')
+    env.Add(table)
     
-    # table_pose = numpy.array([[ 0, 0, -1, 0.7], 
-    #                           [-1, 0,  0, 0], 
-    #                           [ 0, 1,  0, 0], 
-    #                           [ 0, 0,  0, 1]])
-    # table.SetTransform(table_pose)
+    table_pose = numpy.array([[ 0, 0, -1, 0.7], 
+                              [-1, 0,  0, 0], 
+                              [ 0, 1,  0, 0], 
+                              [ 0, 0,  0, 1]])
+    table.SetTransform(table_pose)
 
     resolution = [0.1, 0.1, numpy.pi/4.]
     herb_base = SimpleRobot(env, robot)
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     raw_input('Move robot to goal config and press enter')
     gid = base_env.discrete_env.ConfigurationToNodeId(herb_base.GetCurrentConfiguration())
     goal_config = base_env.discrete_env.NodeIdToConfiguration(gid)
-    goal_config = [-4, 0, 0]
+    goal_config = [4, 0, 0]
     print(goal_config)
     herb_base.SetCurrentConfiguration(goal_config)
 

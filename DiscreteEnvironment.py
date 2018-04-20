@@ -1,4 +1,5 @@
 import numpy as np
+from IPython import embed
 
 class DiscreteEnvironment(object):
 
@@ -29,6 +30,9 @@ class DiscreteEnvironment(object):
 
         # print('config: {}'.format(config))
         coord = self.ConfigurationToGridCoord(config)
+        if coord[2] == 16:
+            print('config: {}'.format(config))
+            raw_input('coord[2] == 16')
         # print('coord: {}'.format(coord))
         node_id = self.GridCoordToNodeId(coord)
 
@@ -60,6 +64,9 @@ class DiscreteEnvironment(object):
         coord = [x/self.resolution[i] for i,x in enumerate(config)]
         coord = np.floor(coord)
         coord = [int(x) for x in coord]
+
+        if coord[2] == 16:
+            coord[2] = 0
 
         return coord
 
