@@ -3,6 +3,8 @@ from scipy.spatial import ConvexHull
 from scipy.spatial.qhull import QhullError
 import scipy
 import time
+from IPython import embed
+from SimpleRobot import SimpleRobot
 
 class GraspPlanner(object):
 
@@ -28,20 +30,24 @@ class GraspPlanner(object):
         self.grasps = self.gmodel.grasps
 
         # this is the top ordered grasp
-        a_grasp = numpy.array([  0.00000000e+00   ,0.00000000e+00,   1.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02, -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,   1.72805325e+09,   3.92523115e-16,   1.37940032e-01  ,-6.93521844e-01,   7.07106781e-01,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02,  -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64123740e-02,   1.86886886e-01   ,5.00000000e-02,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,3.14159265e+00,   1.13559418e+00,   1.95076665e-01,  -9.80787997e-01   ,0.00000000e+00,   1.32500002e+00,   1.52500002e+00,   1.51400002e+00   ,1.00000000e+00,   1.00000000e+00,   1.00000000e+00,   2.50000000e-02   ,3.60495281e-03,  -6.19499877e-03,   3.49628257e-02, 5.00000000e-02   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00])
-        
+        #a_grasp = numpy.array([  0.00000000e+00   ,0.00000000e+00,   1.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02, -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,   1.72805325e+09,   3.92523115e-16,   1.37940032e-01  ,-6.93521844e-01,   7.07106781e-01,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02,  -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64123740e-02,   1.86886886e-01   ,5.00000000e-02,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,3.14159265e+00,   1.13559418e+00,   1.95076665e-01,  -9.80787997e-01   ,0.00000000e+00,   1.32500002e+00,   1.52500002e+00,   1.51400002e+00   ,1.00000000e+00,   1.00000000e+00,   1.00000000e+00,   2.50000000e-02   ,3.60495281e-03,  -6.19499877e-03,   3.49628257e-02, 5.00000000e-02   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00])
 
+        a_grasp = numpy.array([  0.00000000e+00,   0.00000000e+00,   1.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   1.91328851e-01,  -9.61945095e-01,   1.95076665e-01,   3.80549051e-02,  -1.91328851e-01,  -9.80787997e-01,   9.80787997e-01,   1.95076665e-01,   4.44089210e-16,  -1.86975157e-01,  -3.64299309e-02,   5.00000000e-02,   1.72805325e+09,  -5.00000000e-01,   5.87932331e-01,  -3.92855666e-01,   5.00000000e-01,  -1.86975157e-01,  -3.64299309e-02,   5.00000000e-02,   1.91328851e-01,  -9.61945095e-01,   1.95076665e-01,   3.80549051e-02,  -1.91328851e-01,  -9.80787997e-01,   9.80787997e-01,   1.95076665e-01,   4.44089210e-16,  -1.86886886e-01,  -3.64123740e-02,   5.00000000e-02,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   4.71238898e+00,   1.11040077e+00,   9.80787997e-01,   1.95076665e-01,   0.00000000e+00,   1.32500002e+00,   1.52500002e+00,   1.51400002e+00,   1.00000000e+00,   1.00000000e+00,   1.00000000e+00,   2.50000000e-02,   3.58112175e-03,  -3.49628257e-02,  -6.19499877e-03,
+   5.00000000e-02,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00])
+        
         self.show_grasp(a_grasp)
         # self.order_grasps()
 
-        # print self.grasps_ordered[0]
+        #print self.grasps_ordered[0]
 
         '''
-        for grasp in self.ordered_grasps:
+        for grasp in self.grasps_ordered[:5]:
+          print grasp
+          self.show_grasp(grasp)
           # these have already been checking for table collision
           # just have to do inverse reachability and pick any feasible pose
-          pass
         '''
+        
 
         self.irmodel = openravepy.databases.inversereachability.InverseReachabilityModel(robot=self.robot)
 
@@ -66,7 +72,9 @@ class GraspPlanner(object):
                     self.robot.SetTransform(pose)
                     self.robot.SetDOFValues(*jointstate)
                     # validate that base is not in collision
-                    if not self.gmodel.manip.CheckIndependentCollision(openravepy.CollisionReport()):
+                    table = self.robot.GetEnv().GetBodies()[1]
+                    # if not self.gmodel.manip.CheckIndependentCollision(openravepy.CollisionReport()):
+                    if not self.gmodel.manip.CheckIndependentCollision(openravepy.CollisionReport()) and not self.robot.GetEnv().CheckCollision(table):
                         q = self.gmodel.manip.FindIKSolution(Tgrasp,filteroptions=openravepy.IkFilterOptions.CheckEnvCollisions)
                         if q is not None:
                             values = self.robot.GetDOFValues()
@@ -95,13 +103,22 @@ class GraspPlanner(object):
         #  grasping the bottle
         ###################################################################
         
-        base_pose = pose
-        grasp_config = a_grasp
-        raw_input('press ENTER to stop showing goal)
+        angle = openravepy.openravepy_int.axisAngleFromQuat(pose[0:4])
+        # embed()
+        base_pose = [pose[4], pose[5], angle[2]]
+        print('base_pose: {}'.format(base_pose))
+        grasp_config = values[self.gmodel.manip.GetArmIndices()]    # a_grasp
+        print('grasp_config: {}'.format(grasp_config))
+        print('values: {}'.format(values))
+        print('arm_indices: {}'.format(self.gmodel.manip.GetArmIndices()))
+        print('Tgrasp: {}'.format(Tgrasp))
+        raw_input('press ENTER to stop showing goal')
 
         return base_pose, grasp_config
 
     def PlanToGrasp(self, obj):
+# 
+        start_pose = numpy.array(self.base_planner.planning_env.herb.GetCurrentConfiguration())
 
         # Next select a pose for the base and an associated ik for the arm
         base_pose, grasp_config = self.GetBasePoseForObjectGrasp(obj)
@@ -109,19 +126,36 @@ class GraspPlanner(object):
         if base_pose is None or grasp_config is None:
             print 'Failed to find solution'
             exit()
+    
+        env = openravepy.Environment()
+        herb_base = SimpleRobot(env, self.base_planner.planning_env.robot)
 
+        # embed()
         # Now plan to the base pose
-        start_pose = numpy.array(self.base_planner.planning_env.herb.GetCurrentConfiguration())
+        herb_base.SetCurrentConfiguration(base_pose)
+        raw_input()
+        herb_base.SetCurrentConfiguration(start_pose)
+
+        print('start_pose: {}'.format(start_pose))
         base_plan = self.base_planner.Plan(start_pose, base_pose)
         base_traj = self.base_planner.planning_env.herb.ConvertPlanToTrajectory(base_plan)
-
+        
+        herb_base.SetCurrentConfiguration(start_pose)
         print 'Executing base trajectory'
         self.base_planner.planning_env.herb.ExecuteTrajectory(base_traj)
 
         # Now plan the arm to the grasp configuration
         start_config = numpy.array(self.arm_planner.planning_env.herb.GetCurrentConfiguration())
+        print('start_config: {}'.format(start_config))
+        # grasp_config = [-1.73407926e+00, -1.71189130e+00, 6.60000000e-01, 1.82239572e+00, -1.63378598e+00, 6.54778697e-01, 1.41467576e+00]
         arm_plan = self.arm_planner.Plan(start_config, grasp_config)
-        arm_traj = self.arm_planner.planning_env.herb.ConvertPlanToTrajectory(arm_plan)
+
+        # Random Jugaad
+        arm_plan_ = [arm_plan[0][i] for i in range(len(arm_plan))]
+        arm_plan__ = [arm_plan_[i] for i in reversed(range(len(arm_plan)))]
+        # embed()
+        # print('arm_plan_: {}'.format(arm_plan_.reverse()))
+        arm_traj = self.arm_planner.planning_env.herb.ConvertPlanToTrajectory(arm_plan__)
 
         print 'Executing arm trajectory'
         self.arm_planner.planning_env.herb.ExecuteTrajectory(arm_traj)
@@ -272,6 +306,7 @@ class GraspPlanner(object):
                 self.gmodel.robot.GetController().Reset(0)
                 self.gmodel.robot.SetDOFValues(finalconfig[0])
                 self.gmodel.robot.SetTransform(finalconfig[1])
+                print('finalconfig: {}\n, finalconfig[0]: {}\n, finalconfig[1]: {}'.format(finalconfig, finalconfig[0], finalconfig[1]))
                 raw_input("Visualizing grasp, enter to continue")
             except openravepy.planning_error,e:
               print 'bad grasp!',e
