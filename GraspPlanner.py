@@ -30,19 +30,24 @@ class GraspPlanner(object):
         self.grasps = self.gmodel.grasps
 
         # this is the top ordered grasp
-        a_grasp = numpy.array([  0.00000000e+00   ,0.00000000e+00,   1.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02, -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,   1.72805325e+09,   3.92523115e-16,   1.37940032e-01  ,-6.93521844e-01,   7.07106781e-01,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02,  -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64123740e-02,   1.86886886e-01   ,5.00000000e-02,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,3.14159265e+00,   1.13559418e+00,   1.95076665e-01,  -9.80787997e-01   ,0.00000000e+00,   1.32500002e+00,   1.52500002e+00,   1.51400002e+00   ,1.00000000e+00,   1.00000000e+00,   1.00000000e+00,   2.50000000e-02   ,3.60495281e-03,  -6.19499877e-03,   3.49628257e-02, 5.00000000e-02   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00])
+        #a_grasp = numpy.array([  0.00000000e+00   ,0.00000000e+00,   1.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02, -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,   1.72805325e+09,   3.92523115e-16,   1.37940032e-01  ,-6.93521844e-01,   7.07106781e-01,  -3.64299309e-02,   1.86975157e-01   ,5.00000000e-02,  -9.61945095e-01,  -1.91328851e-01,   1.95076665e-01  ,-1.91328851e-01,  -3.80549051e-02,  -9.80787997e-01,   1.95076665e-01  ,-9.80787997e-01,   3.33066907e-16,  -3.64123740e-02,   1.86886886e-01   ,5.00000000e-02,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,3.14159265e+00,   1.13559418e+00,   1.95076665e-01,  -9.80787997e-01   ,0.00000000e+00,   1.32500002e+00,   1.52500002e+00,   1.51400002e+00   ,1.00000000e+00,   1.00000000e+00,   1.00000000e+00,   2.50000000e-02   ,3.60495281e-03,  -6.19499877e-03,   3.49628257e-02, 5.00000000e-02   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00   ,0.00000000e+00,   0.00000000e+00,   0.00000000e+00])
+
+        a_grasp = numpy.array([  0.00000000e+00,   0.00000000e+00,   1.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   1.91328851e-01,  -9.61945095e-01,   1.95076665e-01,   3.80549051e-02,  -1.91328851e-01,  -9.80787997e-01,   9.80787997e-01,   1.95076665e-01,   4.44089210e-16,  -1.86975157e-01,  -3.64299309e-02,   5.00000000e-02,   1.72805325e+09,  -5.00000000e-01,   5.87932331e-01,  -3.92855666e-01,   5.00000000e-01,  -1.86975157e-01,  -3.64299309e-02,   5.00000000e-02,   1.91328851e-01,  -9.61945095e-01,   1.95076665e-01,   3.80549051e-02,  -1.91328851e-01,  -9.80787997e-01,   9.80787997e-01,   1.95076665e-01,   4.44089210e-16,  -1.86886886e-01,  -3.64123740e-02,   5.00000000e-02,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   4.71238898e+00,   1.11040077e+00,   9.80787997e-01,   1.95076665e-01,   0.00000000e+00,   1.32500002e+00,   1.52500002e+00,   1.51400002e+00,   1.00000000e+00,   1.00000000e+00,   1.00000000e+00,   2.50000000e-02,   3.58112175e-03,  -3.49628257e-02,  -6.19499877e-03,
+   5.00000000e-02,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00,   0.00000000e+00])
         
         self.show_grasp(a_grasp)
         # self.order_grasps()
 
-        # print self.grasps_ordered[0]
+        #print self.grasps_ordered[0]
 
         '''
-        for grasp in self.ordered_grasps:
+        for grasp in self.grasps_ordered[:5]:
+          print grasp
+          self.show_grasp(grasp)
           # these have already been checking for table collision
           # just have to do inverse reachability and pick any feasible pose
-          pass
         '''
+        
 
         self.irmodel = openravepy.databases.inversereachability.InverseReachabilityModel(robot=self.robot)
 
@@ -67,7 +72,9 @@ class GraspPlanner(object):
                     self.robot.SetTransform(pose)
                     self.robot.SetDOFValues(*jointstate)
                     # validate that base is not in collision
-                    if not self.gmodel.manip.CheckIndependentCollision(openravepy.CollisionReport()):
+                    table = self.robot.GetEnv().GetBodies()[1]
+                    # if not self.gmodel.manip.CheckIndependentCollision(openravepy.CollisionReport()):
+                    if not self.gmodel.manip.CheckIndependentCollision(openravepy.CollisionReport()) and not self.robot.GetEnv().CheckCollision(table):
                         q = self.gmodel.manip.FindIKSolution(Tgrasp,filteroptions=openravepy.IkFilterOptions.CheckEnvCollisions)
                         if q is not None:
                             values = self.robot.GetDOFValues()
@@ -79,10 +86,10 @@ class GraspPlanner(object):
 
         print 'showing %d results'%N
         for ind,goal in enumerate(goals):
-            # raw_input('press ENTER to show goal %d'%ind)
+            raw_input('press ENTER to show goal %d'%ind)
             Tgrasp,pose,values = goal
-            # self.robot.SetTransform(pose)
-            # self.robot.SetDOFValues(values)
+            self.robot.SetTransform(pose)
+            self.robot.SetDOFValues(values)
 
         # get ordered grasps
         # iterate through ordered grasps
