@@ -19,7 +19,7 @@ if __name__ == "__main__":
                         help='The test to run')
     parser.add_argument('--hres', type=float, default=0.1,
                         help='xy resolution')
-    parser.add_argument('--tres', type=float, default=numpy.pi/8.,
+    parser.add_argument('--tres', type=float, default=numpy.pi/4.,
                         help='angular resolution')
     parser.add_argument('-m', '--manip', type=str,
                         help='The manipulator to grasp the bottle with (right or left)')
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # Create environments for planning the arm and base
     resolution = [args.hres, args.hres, args.tres]
     herb = HerbRobot(env, robot, args.manip)
-    arm_env = HerbEnvironment(herb)
+    arm_env = HerbEnvironment(herb, args.manip)
     herb_base = SimpleRobot(env, robot)
     base_env = SimpleEnvironment(herb_base, resolution)
 
@@ -110,7 +110,7 @@ if __name__ == "__main__":
         bottle_transform[1,3] = table_aabb.pos()[1] + 0.5*table_aabb.extents()[1]
 
     bottle.SetTransform(bottle_transform)
- 
+    
     planner = GraspPlanner(herb.robot, base_planner, arm_planner)
     planner.PlanToGrasp(bottle)
 

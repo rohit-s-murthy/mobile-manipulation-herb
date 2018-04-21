@@ -1,12 +1,14 @@
 import numpy
 import time
 from copy import deepcopy
+import HerbRobot as HerbRobot
 
 class HerbEnvironment(object):
     
-    def __init__(self, herb):
+    def __init__(self, herb, manip):
         self.robot = herb.robot
         self.herb = herb
+        self.manip = manip
         # add a table and move the robot into place
         # table = self.robot.GetEnv().ReadKinBodyXMLFile('models/objects/table.kinbody.xml')
         # self.robot.GetEnv().Add(table)
@@ -147,17 +149,19 @@ class HerbEnvironment(object):
     def checkPathCollision(self, q1, q2, increment=0.01):
         self.env = self.robot.GetEnv()
         table = self.robot.GetEnv().GetBodies()[1]
+        bottle = self.robot.GetEnv().GetBodies()[2]
 
         path = [q1, q2]
         new_path = self.interpolatePath(path, step_size=increment)
         # print "collision path", new_path
 
         for q in new_path:
-            self.robot.SetActiveDOFValues(q)
-            is_valid = not (self.env.CheckCollision(self.robot,table) or self.robot.CheckSelfCollision())
-            # print q, is_valid
-            if not is_valid:
-                return False
+            with self.robot:
+                self.robot.SetActiveDOFValues(q)
+                is_valid = not (self.env.CheckCollision(self.robot,table) or self.robot.CheckSelfCollision() or self.env.CheckCollision(self.robot,bottle) or self.env.CheckCollision(self.manip, bottle) or self.env.CheckCollision(self.manip, table))
+                # print q, is_valid
+                if not is_valid:
+                    return False
         return True
         
 

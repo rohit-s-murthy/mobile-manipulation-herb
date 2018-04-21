@@ -219,7 +219,8 @@ class GraphManager(object):
         # print goal_graph_state_config
         print "Distance from current state to goal: " + str(dist_to_goal) + "\n"
 
-        if(dist_to_goal < self.epsilon_):
+        # if(dist_to_goal < self.epsilon_):
+        if(current_graph_state.id_ == self.goal_state_.id_):
             self.is_goal_state_expanded_ = True
             print ("Goal State found! \n")
             print('Goal State: {}'.format(self.planning_env_.discrete_env.NodeIdToConfiguration(current_graph_state.id_)))
@@ -234,7 +235,7 @@ class GraphManager(object):
         for i, successor_state_id in enumerate(successor_states_id):
             if not(self.planning_env_.checkSucc(self.planning_env_.discrete_env.NodeIdToConfiguration(successor_state_id))):
                 print('ERROR: Collision')
-                raw_input()
+                # raw_input()
 
             successor_state = GraphState()
             successor_state.action_ = successor_states_actions[i]

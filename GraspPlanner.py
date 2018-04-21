@@ -5,6 +5,7 @@ import scipy
 import time
 from IPython import embed
 from SimpleRobot import SimpleRobot
+from HerbRobot import HerbRobot
 
 class GraspPlanner(object):
 
@@ -120,6 +121,7 @@ class GraspPlanner(object):
     def PlanToGrasp(self, obj):
 # 
         start_pose = numpy.array(self.base_planner.planning_env.herb.GetCurrentConfiguration())
+        start_arm_pose = numpy.array(self.arm_planner.planning_env.herb.GetCurrentConfiguration())
 
         # Next select a pose for the base and an associated ik for the arm
         base_pose, grasp_config = self.GetBasePoseForObjectGrasp(obj)
@@ -130,20 +132,29 @@ class GraspPlanner(object):
     
         env = openravepy.Environment()
         herb_base = SimpleRobot(env, self.base_planner.planning_env.robot)
-
+        raw_input('Press Enter to Set Arm to Start Config')
+        self.arm_planner.planning_env.robot.SetActiveDOFValues(start_arm_pose)
+        # base_pose = numpy.array([0.19706595408898062, -1.3151214447646775, -0.060128390741322375])
+        # herb_base.SetCurrentConfiguration(base_pose)
         # embed()
         # Now plan to the base pose
-        herb_base.SetCurrentConfiguration(base_pose)
-        raw_input()
+        # herb_base.SetCurrentConfiguration(base_pose)
+        # raw_input()base_pose: [-0.28806496030861795, -0.22133261708759558, -0.10292150631959551]
+
         herb_base.SetCurrentConfiguration(start_pose)
 
         print('start_pose: {}'.format(start_pose))
         base_plan = self.base_planner.Plan(start_pose, base_pose)
+        print('base_plan: {}'.format(base_plan))
         base_traj = self.base_planner.planning_env.herb.ConvertPlanToTrajectory(base_plan)
         
         herb_base.SetCurrentConfiguration(start_pose)
         print 'Executing base trajectory'
         self.base_planner.planning_env.herb.ExecuteTrajectory(base_traj)
+        herb_base.SetCurrentConfiguration(base_pose)
+        self.arm_planner.planning_env.robot.SetActiveDOFValues(start_arm_pose)
+        
+
         raw_input('Press ENTER to start arm planning')
         # Now plan the arm to the grasp configuration
         start_config = numpy.array(self.arm_planner.planning_env.herb.GetCurrentConfiguration())
@@ -159,7 +170,52 @@ class GraspPlanner(object):
         # print('arm_plan_: {}'.format(arm_plan_.reverse()))
         arm_traj = self.arm_planner.planning_env.herb.ConvertPlanToTrajectory(arm_plan)
 
-        print 'Executing arm trajectory'
+        raw_input('Press ENTER to execute arm trajectory')
+
+        # pose1 = numpy.array([ 0.64, -1.76,  0.26,  1.96,  1.16,  0.87,  1.43])
+        # self.arm_planner.planning_env.robot.SetActiveDOFValues(pose1)
+        # raw_input()
+        
+        # pose2 = numpy.array([ 0.74442844, -1.76173256,  0.09963915,  1.94883922,  0.73511362, 0.83813315,  1.25193371])
+        # self.arm_planner.planning_env.robot.SetActiveDOFValues(pose2)
+        # raw_input()
+        
+        # pose3 = numpy.array([  1.07783351, -1.75352002,  0.48069481,  1.60104895,  0.12066636,0.52027488,  1.63145026])
+        # self.arm_planner.planning_env.robot.SetActiveDOFValues(pose3)
+        # raw_input()
+
+        # pose4 = numpy.array([ 0.87463247, -1.87788244, -0.71465784,  1.01694324,  0.23366989,-0.30040773,  0.95311537])   
+        # self.arm_planner.planning_env.robot.SetActiveDOFValues(pose4)
+        # raw_input()
+
+        # pose5 = numpy.array([ 3.86412594, -1.12085696, -1.12450594,  0.7243002 ,  1.03420353,0.50216631,  0.16835207])
+        # self.arm_planner.planning_env.robot.SetActiveDOFValues(pose5)
+        # raw_input()
+
+        # pose6 = numpy.array([ 5.23611725, -0.06400886, -1.76511222, -0.46560609,  1.26609372,0.42647505, -0.43775949 ]) 
+        # self.arm_planner.planning_env.robot.SetActiveDOFValues(pose6)
+        # raw_input()
+
+        # pose7 = numpy.array([ 5.75547524, -0.61714372, -0.03048933, -0.10736478, -0.06515127,1.34405284,  2.14467063])
+        # self.arm_planner.planning_env.robot.SetActiveDOFValues(pose7)
+        # raw_input()
+
+        # pose8 = numpy.array([ 4.28223909, -0.12969812,  1.80751348, -0.24085675, -2.31234745,0.83562679,  1.86370459])
+        # self.arm_planner.planning_env.robot.SetActiveDOFValues(pose8)
+        # raw_input()
+
+        # pose9 = numpy.array([ 4.90735263, -0.22950129,  0.26      , -0.80594577, -3.05423589,-0.78175092, -0.70647437 ])
+        # self.arm_planner.planning_env.robot.SetActiveDOFValues(pose9)
+        # raw_input()
+
+        # pose10 = numpy.array([ 3.45217017, -0.20276632,  0.62073575,  1.96216867, -1.0226158 ,-0.83697889, -2.25531965])
+        # self.arm_planner.planning_env.robot.SetActiveDOFValues(pose10)
+        # raw_input()
+
+        # pose11 = numpy.array([ 4.45357109, -0.95671446, -0.64      ,  2.40245209, -0.62652288,-1.41058545, -2.65474445])
+        # self.arm_planner.planning_env.robot.SetActiveDOFValues(pose11)
+        # raw_input('Execute Trajectory')
+
         self.arm_planner.planning_env.herb.ExecuteTrajectory(arm_traj)
         raw_input('Press ENTER to start grasping')
         # Grasp the bottle
@@ -312,3 +368,14 @@ class GraspPlanner(object):
                 raw_input("Visualizing grasp, enter to continue")
             except openravepy.planning_error,e:
               print 'bad grasp!',e
+
+
+def main():
+
+    planner = GraspPlanner(self.robot, self.base_planner, self.arm_planner)
+    pose1 = numpy.array([ 0.64, -1.76,  0.26,  1.96,  1.16,  0.87,  1.43])
+    self.arm_planner.planning_env.robot.SetActiveDOFValues(pose1)
+    raw_input('Hopefully published pose1')
+
+if __name__ == "__main__":
+    main()

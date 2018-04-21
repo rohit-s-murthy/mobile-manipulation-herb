@@ -202,9 +202,17 @@ class SimpleEnvironment(object):
         # config = config.tolist()
         # self.robot.SetActiveDOFValues(config)
 
-        robot_pose[0][3] = config[0];
-        robot_pose[1][3] = config[1];
-        self.robot.SetTransform(robot_pose);
+        robot_pose[0][3] = config[0]
+        robot_pose[1][3] = config[1]
+        robot_pose[0][0] = numpy.cos(config[2])
+        robot_pose[0][1] = numpy.sin(config[2])
+        robot_pose[0][2] = 0
+        robot_pose[1][0] = -numpy.sin(config[2])
+        robot_pose[1][1] = numpy.cos(config[2])
+        robot_pose[2][0] = 0
+        robot_pose[2][1] = 0
+        robot_pose[2][2] = 1
+        self.robot.SetTransform(robot_pose)
 
         if self.env.CheckCollision(self.robot, table):
             return False
@@ -293,6 +301,5 @@ class SimpleEnvironment(object):
         diff = numpy.dot(diff, weight)
         cost = numpy.linalg.norm(diff)
         
-        
-        return cost
+        return 100 * cost
 
