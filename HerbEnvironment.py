@@ -158,7 +158,7 @@ class HerbEnvironment(object):
         for q in new_path:
             with self.robot:
                 self.robot.SetActiveDOFValues(q)
-                is_valid = not (self.env.CheckCollision(self.robot,table) or self.robot.CheckSelfCollision() or self.env.CheckCollision(self.robot,bottle) or self.env.CheckCollision(self.manip, bottle) or self.env.CheckCollision(self.manip, table))
+                is_valid = not (self.env.CheckCollision(self.robot,table) or self.robot.CheckSelfCollision())# or self.env.CheckCollision(self.robot,bottle) or self.env.CheckCollision(self.manip, bottle) or self.env.CheckCollision(self.manip, table))
                 # print q, is_valid
                 if not is_valid:
                     return False

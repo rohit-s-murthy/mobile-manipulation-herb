@@ -189,7 +189,7 @@ class SimpleEnvironment(object):
                 # self.PlotAction(Action(c,ftpt))
                 # embed()
             
-            # self.PlotActionFootprints(idx)
+        #     self.PlotActionFootprints(idx)
         # embed()
 
 
